@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.29">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>draft</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="draft_files/libs/clipboard/clipboard.min.js"></script>
+<script src="draft_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="draft_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="draft_files/libs/quarto-html/popper.min.js"></script>
+<script src="draft_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="draft_files/libs/quarto-html/anchor.min.js"></script>
+<link href="draft_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="draft_files/libs/quarto-html/quarto-syntax-highlighting-0815c480559380816a4d1ea211a47e91.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="draft_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="draft_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="draft_files/libs/bootstrap/bootstrap-81267100e462c21b3d6c0d5bf76a3417.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+
+
+
+<section id="introduction" class="level1">
+<h1>Introduction</h1>
+<p>When modeling cardiac autonomic dynamics, which is how the autonomic nervous system controls the cardiac activity, there is a need to understand the impact of the parameters controlling the dynamics of exercise-induced fluctuations in the heart rhythm. Non-linear parametric models are typically the go-to when modeling relationships from where we know the data-generation process or at least the overall functions that mimic the behavior of the system. This type of models enables researchers to better comprehend the influence of the parameters controlling the shape of the cardiac temporal dynamics during stressful situations like exercise, which could ultimately predict health related outcomes, help us better understand the intricate mechanisms behind cardiac-autonomic modulation behind the brain-heart crosstalk.</p>
+<p>Moreover, the use of non-linear parametric functions allows not only to flexibly capture the parameters controlling a physiological process, but also, to estimate physiologically relevant parameters that can have practical significance and be valuable tools in health risk assessment. This type of models, not only allows the estimation of clinically relevant parameters, but they also make inference transparent by knowing how each parameter influence the overall observed cardiac behavior. In this sense, other denominated “black-box” models that, even though are powerful in prediction settings, they do not allow for ease of interpretation or the estimation of clinically meaningful model parameters. In this context, Castillo-Aguilar et al.&nbsp;(2025) have proposed a non-linear model based on coupled logistic functions that captures the transient behavior of the time between heartbeats, denominated R-R intervals (RRi), during an full rest-exercise-recovery period.</p>
+<p>However, even though using non-linear models provides a very flexible and easy to interpret interface, they are computationally intensive and can often fail to identify a unique set of parameters that yield the same observed data. Of course there are many solutions to this set of problems. For instance, some may use box-constrained algorithms based on gradient projection methods, nonetheless they fail to capture the uncertainty behind model parameters. Alternatively, one may try using informative Bayesian priors to ensure targeted exploration over a delimited parameter space, however this requires highly specific domain knowledge, which is not always possible for very complex non-linear models or in exploratory settings. One may argue that a potential solution, is to apply a model reparameterization to ensure that model parameters are unsconstrained over the real numbers, allowing unbounded exploration with simpler parameter space geometry.</p>
+<p>Nonetheless, non-linear models like the one proposed by Castillo-Aguilar et al.&nbsp;(2025), which describes the time-depedent trajectory of RRi during exercise, present model parameters that are sensitive to the time scale. For instance, a <span class="math inline">\(\lambda\)</span> parameter of 3, which controls the rate of exercise-related decline in RRi, does not mean the same steepnees in a 2-hour long exercise, than in a 15-minute protocol. This makes the parameter uninterpretable under different experimental designs that use different time scales other than minutes, which is the time-scale originally used to validate this model. Additionally, these scale-sensitive model parameters are also on different scales, difficulting parameter exploration and estimation processes, which by itself, translates into longer and expensive computation times and convergence issues, like unindentifiability of model parameters.</p>
+<p>For these reasons, we propose in this work a scale-agnostic reparameterization of the original Castillo-Aguilar’s RRi-vs-time model, which will allow not only real-defined parameters, and in consequence, a computationally efficient model for parameter exploration algorithms, but also, physiologycally interpretable parameters that hold significance for practitioners, clinicians and researchers. Finally, we will also show differente indices that can be computed from the new parameters that will help others to gain insights into exercise-related cardiac autonomic dynamics in the context of brain-body crosstalk.</p>
+<section id="non-linear-rri-vs-time-model" class="level2">
+<h2 class="anchored" data-anchor-id="non-linear-rri-vs-time-model">Non-linear RRi-vs-Time model</h2>
+<p>Let’s consider the baseline parameters of the Castillo-Aguilar RRi-vs-time model with absolute parameters and the model reparameterized to support this sign-agnostic model parameters.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>params <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">alpha =</span> <span class="dv">800</span>, <span class="at">beta =</span> <span class="dv">400</span>, <span class="at">c =</span> <span class="fl">0.8</span>,  <span class="do">## Magnitude parameters</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">lambda =</span> <span class="dv">3</span>, <span class="at">phi =</span> <span class="dv">2</span>,               <span class="do">## Steepness parameters</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">tau =</span> <span class="dv">6</span>, <span class="at">delta =</span> <span class="dv">3</span>                 <span class="do">## Timing parameters</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>And a time vector <span class="math inline">\(t\)</span>, where <span class="math inline">\(t \in \mathbb{R}^+\)</span>, which is generated as follow:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>t <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="fl">0.01</span>, <span class="dv">15</span>, <span class="fl">0.01</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The model supporting these magnitude-only parameters is parameterized like the following:</p>
+<p><span class="math display">\[
+\alpha - \frac{\beta}{1 + e^{-\lambda (t - \tau)}} + \frac{c \beta}{1 + e^{-\phi (t - \tau - \delta)}}
+\]</span></p>
+<p>Next, we can use this model to generate simulated RRi data from a rest-exercise-recovery protocl in R like this:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>sim_rri <span class="ot">&lt;-</span> <span class="fu">with</span>(params, {</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  alpha <span class="sc">-</span> </span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    beta <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(<span class="sc">-</span>lambda <span class="sc">*</span> (t <span class="sc">-</span> tau))) <span class="sc">+</span> </span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    (c <span class="sc">*</span> beta) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(<span class="sc">-</span>phi <span class="sc">*</span> (t <span class="sc">-</span> tau <span class="sc">-</span> delta)))</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(sim_rri) <span class="do">## Let's see the structure of the simulated data</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> num [1:1500] 800 800 800 800 800 ...</code></pre>
+</div>
+</div>
+<p>Additionally, we can then visualize the simulated RRi signal in R by using the <code>plot()</code> function:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(t, sim_rri, <span class="at">type =</span> <span class="st">"l"</span>, </span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">"Predicted RRi curve from Original Model"</span>,</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Time (min)"</span>, <span class="at">ylab =</span> <span class="st">"RRi (ms)"</span>, </span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>     <span class="at">axes =</span> <span class="cn">FALSE</span>); <span class="fu">axis</span>(<span class="dv">1</span>);<span class="fu">axis</span>(<span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="draft_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="reparameterized-model-parameters" class="level2">
+<h2 class="anchored" data-anchor-id="reparameterized-model-parameters">Reparameterized model parameters</h2>
+<p>In esence, we need to reparametrized the model parameters so every new parameters can extend along the real number, but provide a feasable prediction of the RRi dynamics over time. Additionally, the parameters need to be robust enought to changes in the scale of time, so the same parameters can mean the same overall shape, independent if the timescale is on minutes, hours, percentages, or time-to-event timescales.</p>
+<p>For each parameter we present the transformation of the original parameter into the new reparameterized form, alongside the inverse transformation. In this manner, we got a new equation to plug into the original model, replacing the old parameter. In addition, the inverse transformation serves as a way to obtain the old parameters back from the reparameterized model, allowing reversibleness between model parameters.</p>
+<section id="baseline-alpha-parameter" class="level3">
+<h3 class="anchored" data-anchor-id="baseline-alpha-parameter">Baseline <span class="math inline">\(\alpha\)</span> parameter</h3>
+<p>For the baseline parameter, we’re going to center and scale <span class="math inline">\(\alpha\)</span> for the standard deviation (<span class="math inline">\(S_{\mathrm{RRi}}\)</span>) and mean RRi (<span class="math inline">\(\bar{\mathrm{RRi}}\)</span>) observed from the RRi data. This previously computed parameters will serve to refer to the new parameter <span class="math inline">\(\alpha_z\)</span> as an standardized version of <span class="math inline">\(\alpha\)</span>.</p>
+<p><span class="math display">\[
+\begin{align}
+\alpha = \alpha_z \cdot S_{\mathrm{RRi}} + \bar{\mathrm{RRi}} \\
+\alpha_z = \frac{\alpha - \bar{\mathrm{RRi}}}{S_{\mathrm{RRi}}}
+\end{align}
+\]</span></p>
+</section>
+<section id="exercise-induced-drop-beta-parameter" class="level3">
+<h3 class="anchored" data-anchor-id="exercise-induced-drop-beta-parameter">Exercise-induced drop <span class="math inline">\(\beta\)</span> parameter</h3>
+<p>For the parameter <span class="math inline">\(\beta\)</span>, that controls the exercise-induced drop part of the RRi curve, we’ll also scale it, so it is in the same units (standard deviations) of the <span class="math inline">\(\alpha\)</span> parameter. This new parameter will be <span class="math inline">\(\beta_z\)</span>.</p>
+<p><span class="math display">\[
+\begin{align}
+\beta = \beta_z \cdot S_{\mathrm{RRi}} \\
+\beta_z = \frac{\beta}{S_{\mathrm{RRi}}}
+\end{align}
+\]</span></p>
+</section>
+<section id="recovery-proportion-c-parameter" class="level3">
+<h3 class="anchored" data-anchor-id="recovery-proportion-c-parameter">Recovery proportion <span class="math inline">\(c\)</span> parameter</h3>
+<p>The parameter controlling the recovery proprotion is a parameter bounded at zero at the lower limit, and physiologically bounded at 1.5 or 2, with no hard upper limit. In this case, we need a transformation that allows the new model parameter to be on the real line (i.e., <span class="math inline">\(c_\mathbb{R} \in \mathbb{R}\)</span>). For this we limit the values of <span class="math inline">\(c\)</span> from 0 to 2, which contains physiologically extreme, but plausible, recovery proportion values.</p>
+<p><span class="math display">\[
+\begin{align}
+c = \frac{2e^{c_\mathbb{R}}}{1 + e^{c_\mathbb{R}}} \\
+c_\mathbb{R} = \log\left( \frac{c}{2 - c} \right)
+\end{align}
+\]</span></p>
+</section>
+<section id="rate-parameters-lambda-and-phi" class="level3">
+<h3 class="anchored" data-anchor-id="rate-parameters-lambda-and-phi">Rate parameters <span class="math inline">\(\lambda\)</span> and <span class="math inline">\(\phi\)</span></h3>
+<p>The parameters controlling the steepness of the exercise-induced drop and recovery are given by <span class="math inline">\(\lambda\)</span> and <span class="math inline">\(\phi\)</span> parameters. These parameters are defined on the positive real line, <span class="math inline">\(\mathbb{R}^+\)</span>. To convert this parameters so they can extend on the complete real numbers, we can apply a logarithmic transformation.</p>
+<p><span class="math display">\[
+\begin{align}
+\lambda = e^{\lambda_\mathbb{R}} \\
+\lambda_\mathbb{R} = \log(\lambda)
+\end{align}
+\]</span></p>
+<p>This also applies for the <span class="math inline">\(\phi\)</span> parameter.</p>
+<p><span class="math display">\[
+\begin{align}
+\phi = e^{\phi_\mathbb{R}} \\
+\phi_\mathbb{R} = \log(\phi)
+\end{align}
+\]</span></p>
+<p>This way we obtain real defined rate parameters <span class="math inline">\(\lambda_\mathbb{R}\)</span> and <span class="math inline">\(\phi_\mathbb{R}\)</span>.</p>
+</section>
+<section id="timing-parameters-tau-and-delta" class="level3">
+<h3 class="anchored" data-anchor-id="timing-parameters-tau-and-delta">Timing parameters <span class="math inline">\(\tau\)</span> and <span class="math inline">\(\delta\)</span></h3>
+<p>These parameters control the time-dependent kinetics of the RRi curve. This means, they control the “when” things happen. To make this parameters agnostic to the time scale, we thought to make a similar implementation to the <span class="math inline">\(c\)</span> parameter, by leveraging the inverse logistic function. However, for this to make sense, we need these parameters to be constraint in the 0 to 1 range (like a probability). To accomplish this, we first need to make that <span class="math inline">\(\tau\)</span> (and <span class="math inline">\(\delta\)</span> as well as we’ll further see), are percentages of the current time range, <span class="math inline">\(\Delta t\)</span>. This can be made by declaring this new parameter, let’s say <span class="math inline">\(\tau_\gamma\)</span> and <span class="math inline">\(\delta_\gamma\)</span>.</p>
+<p>For <span class="math inline">\(\tau_\gamma\)</span> this would be:</p>
+<p><span class="math display">\[
+\begin{align}
+\tau = t_{min} + \Delta t \cdot \tau_\gamma \\
+\tau_\gamma = \frac{\tau -t_{min}}{\Delta t}
+\end{align}
+\]</span></p>
+<p>And for <span class="math inline">\(\delta_\gamma\)</span> it would be:</p>
+<p><span class="math display">\[
+\begin{align}
+\delta = \Delta t \cdot \delta_\gamma \\
+\delta_\gamma = \frac{\delta}{\Delta t}
+\end{align}
+\]</span></p>
+<p>Then, we can work with this new parameter and apply the inverse logistic function to map this new parameter in the real line. This way, we obtain the new parameters <span class="math inline">\(\tau_\mathbb{R}\)</span> and <span class="math inline">\(\delta_\mathbb{R}\)</span>.</p>
+<p>The transformation would to obtain <span class="math inline">\(\tau_\mathbb{R}\)</span> from <span class="math inline">\(\tau_\gamma\)</span> would be:</p>
+<p><span class="math display">\[
+\begin{align}
+\tau_\gamma = \frac{e^{\tau_\mathbb{R}}}{1 + e^{\tau_\mathbb{R}}} \\
+\tau_\mathbb{R} = \log \left( \frac{\tau_\gamma}{1 - \tau_\gamma} \right)
+\end{align}
+\]</span></p>
+<p>And the similar transformation would apply to obtain <span class="math inline">\(\delta_\mathbb{R}\)</span> from <span class="math inline">\(\delta_\gamma\)</span>:</p>
+<p><span class="math display">\[
+\begin{align}
+\delta_\gamma = \frac{e^{\delta_\mathbb{R}}}{1 + e^{\delta_\mathbb{R}}} \\
+\delta_\mathbb{R} = \log \left( \frac{\delta_\gamma}{1 - \delta_\gamma} \right)
+\end{align}
+\]</span> The full operation to transform <span class="math inline">\(\tau\)</span> from <span class="math inline">\(\tau_\mathbb{R}\)</span> and and back is the following:</p>
+<p><span class="math display">\[
+\begin{align}
+\tau = t_{min} + \Delta t \underbrace{ \left( \frac{e^{\tau_\mathbb{R}}}{1 + e^{\tau_\mathbb{R}}} \right) }_{\tau_\gamma} \\
+\tau_\mathbb{R} = \log\left( \frac{\tau - t_{min}}{t_{min} + \Delta t - \tau} \right)
+\end{align}
+\]</span></p>
+<p>For <span class="math inline">\(\delta\)</span> and <span class="math inline">\(\delta_\mathbb{R}\)</span> the operation is simplier, given that we don’t have the term <span class="math inline">\(t_{min}\)</span>:</p>
+<p><span class="math display">\[
+\begin{align}
+\delta = \Delta t \underbrace{ \left( \frac{e^{\delta_\mathbb{R}}}{1 + e^{\delta_\mathbb{R}}} \right) }_{\delta_\gamma} \\
+\delta_\mathbb{R} = \log \left( \frac{\delta}{\Delta t - \delta} \right)
+\end{align}
+\]</span></p>
+<p>This sequence of operations allows to, not only estimate parameters that are computationally efficient to explore and sample from, but also, are physiologically and practically meaningful. Parameters like <span class="math inline">\(\tau_\gamma\)</span> and <span class="math inline">\(\delta_\gamma\)</span> are time-agnostic, which allows for the interchangeable interpretation on exercise protocols with different time-frames and protocols.</p>
+</section>
+</section>
+<section id="full-reparameterized-model" class="level2">
+<h2 class="anchored" data-anchor-id="full-reparameterized-model">Full reparameterized model</h2>
+<p>Considering the aforementioned transformations on the original model parameters, let’s recall the old model structure:</p>
+<p><span class="math display">\[
+\alpha - \frac{\beta}{1 + e^{-\lambda (t - \tau)}} + \frac{c \beta}{1 + e^{-\phi (t - \tau - \delta)}}
+\]</span></p>
+<p>By replacing the old model parameters with the new ones, we would ended up with a raw model that would look like something this:</p>
+<p><span class="math display">\[
+(\alpha_z \cdot S_{\mathrm{RRi}} + \bar{\mathrm{RRi}}) - \frac{\beta_z \cdot S_{\mathrm{RRi}}}{\left(1 + e^{ -e^{\lambda_\mathbb{R}}\left(t - \left( t_{min}+\Delta t \left( \frac{e^\tau_\mathbb{R}}{1 + e^{\tau_\mathbb{R}}} \right) \right)\right)}\right)} + \frac{ \left(\frac{2e^{c_\mathbb{R}}}{1 + e^{c_\mathbb{R}}} \right) \cdot \beta_z \cdot S_{\mathrm{RRi}}}{\left(1 + e^{ -e^{\phi_\mathbb{R}}\left(t - \left( t_{min}+\Delta t \left( \frac{e^\tau_\mathbb{R}}{1 + e^{\tau_\mathbb{R}}} \right) \right) - \left( \Delta t \left( \frac{e^{\delta_\mathbb{R}}}{1 + e^{\delta_\mathbb{R}}} \right) \right)\right)}\right)}
+\]</span></p>
+<p>This model can be further rewritten to rearrange the fraction in the numerator of the second logistic component like this:</p>
+<p><span class="math display">\[
+(\alpha_z \cdot S_{\mathrm{RRi}} + \bar{\mathrm{RRi}}) - \frac{\beta_z \cdot S_{\mathrm{RRi}}}{\left(1 + e^{ -e^{\lambda_\mathbb{R}}\left(t - \left( t_{min}+\Delta t \left( \frac{e^\tau_\mathbb{R}}{1 + e^{\tau_\mathbb{R}}} \right) \right)\right)}\right)} + \frac{2e^{c_\mathbb{R}} \cdot \beta_z \cdot S_{\mathrm{RRi}}}{(1 + e^{c_\mathbb{R}})\left(1 + e^{ -e^{\phi_\mathbb{R}}\left(t - \left( t_{min}+\Delta t \left( \frac{e^\tau_\mathbb{R}}{1 + e^{\tau_\mathbb{R}}} \right) \right) - \left( \Delta t \left( \frac{e^{\delta_\mathbb{R}}}{1 + e^{\delta_\mathbb{R}}} \right) \right)\right)}\right)}
+\]</span></p>
+<p>Additionally, the exponents in the neperian terms can still be simplified by common terms and sign propagation to arrive to an even elegant solution:</p>
+<p><span class="math display">\[
+(\alpha_z \cdot S_{\mathrm{RRi}} + \bar{\mathrm{RRi}}) - \frac{\beta_z \cdot S_{\mathrm{RRi}}}{\left(1 + e^{ -e^{\lambda_\mathbb{R}}\left(t - t_{min} - \Delta t \left(\frac{e^\tau_\mathbb{R}}{1 + e^{\tau_\mathbb{R}}} \right) \right)}\right)} + \frac{2e^{c_\mathbb{R}} \cdot \beta_z \cdot S_{\mathrm{RRi}}}{(1 + e^{c_\mathbb{R}})\left(1 + e^{ -e^{\phi_\mathbb{R}}\left(t - t_{min} - \Delta t \left( \frac{e^\tau_\mathbb{R}}{1 + e^{\tau_\mathbb{R}}} + \frac{e^{\delta_\mathbb{R}}}{1 + e^{\delta_\mathbb{R}}} \right) \right)}\right)}
+\]</span></p>
+<p>And in this way, we’ve finally arrived to the final form of the reparameterized RRi-vs-time model, which is generalizable to support a plethora of protocols and time schemes by only capturing shape-related aspects of the RRi curve, allowing its use varying experimental settings.</p>
+<p>Now we will try to visualize the new model and try to see if any difference from the original model arises, since this would mean that the model is capturing a process different from the originally thought.</p>
+<p>First, we will estimate the new parameters from the original magnitude-only model parameters to test the generalization of our original non-linear model.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>params <span class="ot">&lt;-</span> <span class="fu">within</span>(params, {</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Fixed parameters — Estimated 'a priori' from the data</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  rri_bar <span class="ot">&lt;-</span> <span class="dv">650</span> <span class="co"># Observed RRi mean from crude data</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  S_rri <span class="ot">&lt;-</span> <span class="dv">150</span> <span class="co"># Observed RRi standard deviation from the mean</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  t_min <span class="ot">&lt;-</span> <span class="fu">min</span>(t) <span class="co"># Minimum time from the data</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  Delta_t <span class="ot">&lt;-</span> <span class="fu">diff</span>(<span class="fu">range</span>(t)) <span class="co"># Difference of range of time</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Estimated parameters — </span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  alpha_z <span class="ot">&lt;-</span> (alpha <span class="sc">-</span> rri_bar) <span class="sc">/</span> S_rri</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  beta_z <span class="ot">&lt;-</span> beta <span class="sc">/</span> S_rri</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  c_r <span class="ot">&lt;-</span> <span class="fu">log</span>(c <span class="sc">/</span> (<span class="dv">2</span> <span class="sc">-</span> c))</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  lambda_r <span class="ot">&lt;-</span> <span class="fu">log</span>(lambda)</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  phi_r <span class="ot">&lt;-</span> <span class="fu">log</span>(phi)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  tau_r <span class="ot">&lt;-</span> <span class="fu">log</span>((tau <span class="sc">-</span> t_min)<span class="sc">/</span>(Delta_t <span class="sc">-</span> tau <span class="sc">+</span> t_min))</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  delta_r <span class="ot">&lt;-</span> <span class="fu">log</span>((delta)<span class="sc">/</span>(Delta_t <span class="sc">-</span> delta))</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Then, by having all the needed parameters to this model, we can be implement it in R as follow:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>sim_rri_2 <span class="ot">&lt;-</span> <span class="fu">with</span>(params, {</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Reparameterized parameters</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  alpha_term <span class="ot">&lt;-</span> (alpha_z <span class="sc">*</span> S_rri <span class="sc">+</span> rri_bar)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  beta_term <span class="ot">&lt;-</span> (beta_z <span class="sc">*</span> S_rri)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  c_term <span class="ot">&lt;-</span> (<span class="dv">2</span> <span class="sc">*</span> <span class="fu">exp</span>(c_r)) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(c_r))</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  lambda_term <span class="ot">&lt;-</span> <span class="fu">exp</span>(lambda_r)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  phi_term <span class="ot">&lt;-</span> <span class="fu">exp</span>(phi_r)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  tau_term <span class="ot">&lt;-</span> t_min <span class="sc">+</span> Delta_t <span class="sc">*</span> (<span class="fu">exp</span>(tau_r) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(tau_r)))</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  delta_term <span class="ot">&lt;-</span> Delta_t <span class="sc">*</span> (<span class="fu">exp</span>(delta_r) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(delta_r)))</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Symbolic representations of the old parameters by their previous position</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  <span class="do">## which allows easier tractability for the generalizable model</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  alpha_term <span class="sc">-</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    beta_term <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(<span class="sc">-</span>lambda_term <span class="sc">*</span> (t <span class="sc">-</span> tau_term))) <span class="sc">+</span> </span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    (c_term <span class="sc">*</span> beta_term) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(<span class="sc">-</span>phi_term <span class="sc">*</span> (t <span class="sc">-</span> tau_term <span class="sc">-</span> delta_term)))</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>This model implementation of the original RRi-vs-time model should provide the same estimations for a given time <span class="math inline">\(t\)</span> as the original model. First, we will visualize the overlaid estimations, from the new and original models.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(t, sim_rri, <span class="at">type =</span> <span class="st">"l"</span>, <span class="at">col =</span> <span class="st">"gray30"</span>, <span class="at">lwd =</span> <span class="dv">5</span>, </span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Time (min)"</span>, <span class="at">ylab =</span> <span class="st">"RRi (ms)"</span>, <span class="at">lend =</span> <span class="st">"square"</span>,</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">"Overlaid New model (white dashed)</span><span class="sc">\n</span><span class="st">over Original model (gray continuous)"</span>,</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>     <span class="at">axes =</span> <span class="cn">FALSE</span>); <span class="fu">axis</span>(<span class="dv">1</span>); <span class="fu">axis</span>(<span class="dv">2</span>)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(t, sim_rri_2, <span class="at">col =</span> <span class="st">"white"</span>, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">lty =</span> <span class="dv">2</span>, <span class="at">lend =</span> <span class="st">"square"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="draft_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Additionally, let’s check the difference between pairwise predicted values to get a measure of error from the new model agains the original model. This is similar to what residuals are meant to be. All data points should be centered around zero.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(sim_rri <span class="sc">-</span> sim_rri_2),</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">"New Model (Nm) Residuals Against Original Model (Om)</span><span class="sc">\n</span><span class="st">Om(t) - Nm(t)"</span>,</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Residual value"</span>,</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>     <span class="at">axes =</span> <span class="cn">FALSE</span>); <span class="fu">axis</span>(<span class="dv">1</span>); <span class="fu">axis</span>(<span class="dv">2</span>)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="fu">rug</span>(sim_rri <span class="sc">-</span> sim_rri_2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="draft_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>As we can see, most values are centered around zero, suggesting that the differences between models is neglible. However, we see some values different from zero, but that are on the 10<sup>-13</sup> magnitude. For reference, this is equivalent to an error in the predicted RRi by less than 0.0000000000001 ms between models, suggesting mainly rounding errors derived from handling irrational values from natural logarithms and euler exponents.</p>
+</section>
+<section id="simulation" class="level2">
+<h2 class="anchored" data-anchor-id="simulation">Simulation</h2>
+<p>Now that we have</p>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

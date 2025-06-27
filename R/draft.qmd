@@ -1,0 +1,364 @@
+# 1. Introduction
+
+The autonomic nervous system (ANS) is a pivotal regulatory network orchestrating physiological functions for homeostasis and environmental adaptation. Its influence on cardiac activity is particularly evident during physiological stress, such as exercise. Physical exertion induces rapid temporal adjustments in heart rhythm, reflecting a coordinated balance between sympathetic activation (increasing heart rate and contractility) and parasympathetic withdrawal. Sympathetic dominance is followed by parasympathetic reactivation during recovery, restoring cardiac function. Understanding these exercise-induced heart rhythm fluctuations is crucial. R-R interval (RRi) dynamics, the time between successive heartbeats, provide a non-invasive window into autonomic modulation. Investigating RRi dynamics is fundamental to understanding brain-heart crosstalk, a complex neural and humoral dialogue influencing immediate physiological responses and long-term adaptive capacities. Insights from these dynamic responses predict a broad spectrum of health outcomes, including cardiovascular disease risk, heart failure prognosis, chronic illness progression, stress resilience, training adaptation, and recovery optimization. This imperative to understand cardiac autonomic control in response to physiological challenge drives the development of sophisticated analytical tools.
+
+Non-linear parametric models are frequently preferred for modeling cardiac autonomic dynamics over linear or purely descriptive statistical methods. Their utility is highest when the underlying data-generation process (e.g., sigmoidal dose-response curves) or the system's functional behavior (e.g., rapid initial response with slower recovery) is reasonably understood. These models offer a powerful advantage over "black-box" approaches by precisely characterizing specific, identifiable parameters that define observed cardiac temporal dynamics during stressors like exercise. Such parameters can quantitatively represent maximal heart rate change, transition rates, or adaptation levels. This granular insight provides mechanistic elucidation of physiological control, moving beyond mere description. By providing quantitative values for parameters mapping to biological processes, these models foster hypothesis generation and testing regarding autonomic function, deepening comprehension of cardiac-autonomic modulation and brain-heart crosstalk, thus advancing neurocardiology.
+
+Non-linear parametric functions are valuable for their capacity to estimate physiologically relevant parameters. These quantifiable biological aspects have direct, intuitive meaning for physiologists and clinicians. Consequently, they hold practical value in health risk assessment, clinical decision-making, and performance optimization across diverse fields. This inherent interpretability, directly linking model parameters to specific physiological phenomena, contrasts with "black-box" models (e.g., deep neural networks) that often lack transparency. While black-box models can predict effectively, their opacity hinders scientific and clinical contexts where understanding *why* a response occurs is critical for diagnosis, intervention design, and robust hypothesis generation. Non-linear parametric models offer transparent inference rooted in a clear understanding of each parameter's influence on cardiac behavior. This fosters trust, facilitates robust scientific inquiry by enabling mechanistic hypothesis testing, and accelerates research translation into clinical applications by providing actionable insights.
+
+Castillo-Aguilar et al. (2025) recently introduced a novel non-linear model using coupled logistic functions to capture transient R-R intervals (RRi) across rest-exercise-recovery periods. This model offers a robust, interpretable framework for quantifying dynamic shifts in cardiac rhythm during exercise. By explicitly modeling autonomic response phases, pre-exercise baseline, exercise-induced sympathetic dominance/parasympathetic withdrawal, and parasympathetic reactivation during recovery, it precisely characterizes critical physiological events like autonomic modulation onset and cessation. This temporal quantification is crucial for understanding dynamic autonomic control during and after physical challenges.
+
+Despite their advantages, non-linear models, including the Castillo-Aguilar et al. (2025) model, face practical and methodological challenges. Primary concerns include computational intensity due to iterative optimization, consuming substantial resources for large datasets or complex models. Furthermore, identifiability problems are common, where multiple parameter sets can explain observed data, making it difficult to converge to a unique, biologically meaningful set. This ambiguity undermines scientific rigor and interpretability.
+
+Strategies to mitigate these challenges exist. Box-constrained algorithms, using gradient projection methods, restrict parameter exploration to plausible physiological ranges, aiding convergence and ensuring realistic estimates. However, they often fail to capture parameter uncertainty, critical for robust scientific conclusions and assessing confidence in derived insights. Informative Bayesian priors, incorporating prior knowledge, can guide parameter exploration, enhancing identifiability and computational efficiency by constraining the search space to more probable regions. However, this demands specific domain knowledge often unfeasible for complex models or exploratory research lacking *a priori* information. Model reparameterization, a mathematical transformation, simplifies parameter space geometry, potentially improving convergence and identifiability by reducing parameter correlation. Yet, its success depends on maintaining parameter interpretability; a reparameterization that improves computation but obscures physiological meaning has limited utility.
+
+A significant, often overlooked challenge for non-linear models describing time-dependent physiological trajectories (e.g., Castillo-Aguilar et al., 2025, for RRi changes) is parameter sensitivity to the experimental protocol's time scale. For instance, a rate parameter $\lambda$ (min^-1^) governing exercise-related RRi decline will signify drastically different temporal progression depending on whether the protocol spans 2 hours, 15 minutes, or 5 minutes. This inherent scale dependency renders the parameter uninterpretable across different experimental designs, severely limiting generalizability and comparative utility across studies. This hinders meta-analyses and evidence synthesis. Furthermore, scale-sensitive parameters often have widely disparate magnitudes, complicating parameter exploration and estimation, increasing computational times, and exacerbating convergence and non-identifiability issues. Inability to consistently compare parameter values and their physiological meaning across studies due to differing time scales impedes advancing a cohesive understanding of cardiac autonomic control.
+
+For these fundamental methodological reasons, the current work introduces a novel scale-agnostic reparameterization of the Castillo-Aguilar's RRi-vs-time model. This reparameterization offers several crucial advantages for cardiac autonomic research. Firstly, it yields real-defined parameters, leading to a computationally efficient model for parameter exploration algorithms, facilitating faster and more reliable convergence. More importantly, this reparameterization will yield physiologically interpretable parameters with consistent significance regardless of the experimental time scale. This eliminates scale dependency, enabling direct and meaningful comparisons of parameter values across studies with varying exercise durations, sampling rates, or recovery periods. This advancement allows for robust inter-study comparisons, development of universal physiological benchmarks, and more reliable longitudinal tracking. Finally, building on this enhanced framework, we will present derived indices robustly computed from these new parameters. These indices promise valuable, nuanced, and context-independent insights into exercise-related cardiac autonomic dynamics within the broader context of brain-body crosstalk, contributing to more precise health assessments and interventions.
+
+### 2. Scale-Dependency and Limitations of Existing Models
+
+Non-linear parametric models are critical for elucidating cardiac autonomic dynamics, offering physiologically interpretable parameters essential for research and clinical application. The Castillo-Aguilar et al. (2025) model exemplifies this, capturing complex transient R-R intervals (RRi) during rest-exercise-recovery cycles. Structured around coupled logistic functions, it describes the dynamic interplay of autonomic influences on heart rate, specifically parasympathetic withdrawal and sympathetic activation at exercise onset, followed by parasympathetic reactivation and sympathetic withdrawal during recovery. Its original formulation included parameters quantifying baseline heart rate, exercise-induced heart rate change magnitude, and recovery kinetics. This model's strength lies in providing a continuous representation of the physiological response, overcoming limitations of traditional discrete heart rate variability measures.
+
+However, the Castillo-Aguilar et al. (2025) model, like other non-linear models for time-dependent biological phenomena, faces significant methodological and practical challenges. Chief among these is parameter sensitivity to the experimental protocol's time scale, which critically undermines the generalizability and comparative utility of its derived parameters. For instance, a hypothetical "rate parameter" ($\lambda$, min^-1^) quantifying exercise-related RRi decline, if estimated as $\lambda = 3$ min^-1^ from a 10-minute exercise test, reflects a specific temporal progression. However, measuring the same physiological phenomenon over a 60-minute protocol would yield a numerically different $\lambda$ value if the model is strictly tied to the input time unit. This is not merely a unit conversion issue; the parameter's numerical value, intended to represent a consistent physiological process, becomes arbitrarily dependent on experimental duration or sampling frequency. For example, a rapid 30-second physiological adaptation in a 5-minute protocol might appear relatively instantaneous in a 2-hour protocol, altering the parameter's numerical behavior due to different independent variable scaling. This inherent scale dependency renders the parameter uninterpretable across different experimental designs (e.g., short maximal tests vs. prolonged submaximal efforts, or varying sampling rates).
+
+The profound and multifaceted negative effects of this scale-dependency impact every stage from parameter estimation to clinical translation. Firstly, it causes a lack of consistent physiological interpretability. If a parameter's numerical value changes solely due to a change in exercise test duration, its "physiological meaning" becomes ambiguous. Clinicians cannot confidently compare $\lambda$ values from patients undergoing different test durations, even for the same underlying physiological process. This undermines the purpose of parametric models, hinders meta-analyses, and prevents establishing widely accepted normative ranges or thresholds.
+
+Secondly, this issue complicates parameter exploration and estimation. Non-linear optimization algorithms are sensitive to parameter space scale and geometry. When parameters have widely different magnitudes due to scale-dependency or are highly correlated, the optimization landscape becomes rugged. This requires more sophisticated algorithms, precise initial guesses, and extensive, computationally expensive grid searches. Complex geometry also increases convergence to suboptimal local minima.
+
+Thirdly, this complexity leads to exacerbated computational cost. Longer optimization routines, failed convergence attempts, and the need for robust algorithms increase computational burden. This reduces the model's practicality for rapid analysis in real-time biofeedback, large-scale epidemiological studies, or routine clinical assessments where efficiency is paramount.
+
+Finally, scale-dependency significantly exacerbates convergence issues, including non-identifiability. Parameter identifiability relates to determining a unique parameter set from observed data. In non-linear models, small changes in input scale can alter parameter sensitivity, leading to high correlations. Highly correlated parameters allow multiple value combinations to produce similar model outputs, making differentiation impossible for optimization algorithms. This results in wide confidence intervals for estimates, indicating high uncertainty, or even complete inability to converge. Such ambiguity fundamentally undermines scientific rigor, rendering derived parameters unreliable and casting doubt on physiological insights.
+
+Various strategies exist to mitigate general non-linear model estimation challenges, but most do not comprehensively address scale-dependent parameter interpretability. Box-constrained algorithms restrict parameter exploration within plausible physiological ranges, aiding numerical stability and preventing biologically irrelevant searches. However, they do not fundamentally alter underlying parameter correlations or inherent scale-dependency, only providing search boundaries. They often fail to adequately capture parameter uncertainty, which is critical for robust scientific conclusions.
+
+Informative Bayesian priors, incorporating prior knowledge, can guide parameter exploration within a predefined, theoretically sound space, enhancing identifiability and computational efficiency. However, this demands specific domain knowledge often unfeasible for complex models or exploratory research lacking *a priori* information. Prior choice can also unduly influence parameter estimates if not carefully justified.
+
+Model reparameterization, a mathematical transformation, simplifies parameter space geometry, potentially improving convergence speed and identifiability by reducing parameter correlations. Yet, its success hinges on design. Many reparameterizations focus only on numerical stability or correlation reduction, often failing to preserve or enhance physiological interpretability, particularly across different temporal scales. A reparameterization improving computation but obscuring physiological meaning has limited scientific or clinical utility, especially in interdisciplinary fields where clarity and biological relevance are paramount. The challenge lies in devising a reparameterization that simultaneously achieves numerical robustness *and* consistent physiological interpretability irrespective of experimental time scale.
+
+## Non-linear RRi-vs-Time model
+
+Let's consider the baseline parameters of the Castillo-Aguilar RRi-vs-time model with absolute parameters and the model reparameterized to support this sign-agnostic model parameters. 
+
+```{r}
+params <- list(
+  alpha = 800, beta = 400, c = 0.8,  ## Magnitude parameters
+  lambda = 3, phi = 2,               ## Steepness parameters
+  tau = 6, delta = 3                 ## Timing parameters
+)
+```
+
+And a time vector $t$, where $t \in \mathbb{R}^+$, which is generated as follow:
+
+```{r}
+t <- seq(0.01, 15, 0.01)
+```
+
+The model supporting these magnitude-only parameters is parameterized like the following:
+
+$$
+\alpha - \frac{\beta}{1 + e^{-\lambda (t - \tau)}} + \frac{c \beta}{1 + e^{-\phi (t - \tau - \delta)}}
+$$
+
+Next, we can use this model to generate simulated RRi data from a rest-exercise-recovery protocl in R like this:
+
+```{r}
+sim_rri <- with(params, {
+  alpha - 
+    beta / (1 + exp(-lambda * (t - tau))) + 
+    (c * beta) / (1 + exp(-phi * (t - tau - delta)))
+})
+
+str(sim_rri) ## Let's see the structure of the simulated data
+```
+
+Additionally, we can then visualize the simulated RRi signal in R by using the `plot()` function:
+
+```{r}
+plot(t, sim_rri, type = "l", 
+     main = "Predicted RRi curve from Original Model",
+     xlab = "Time (min)", ylab = "RRi (ms)", 
+     axes = FALSE); axis(1);axis(2)
+```
+
+## Reparameterized model parameters
+
+In esence, we need to reparametrized the model parameters so every new parameters can extend along the real number, but provide a feasable prediction of the RRi dynamics over time. Additionally, the parameters need to be robust enought to changes in the scale of time, so the same parameters can mean the same overall shape, independent if the timescale is on minutes, hours, percentages, or time-to-event timescales.
+
+For each parameter we present the transformation of the original parameter into the new reparameterized form, alongside the inverse transformation. In this manner, we got a new equation to plug into the original model, replacing the old parameter. In addition, the inverse transformation serves as a way to obtain the old parameters back from the reparameterized model, allowing reversibleness between model parameters.
+
+### Baseline $\alpha$ parameter
+
+For the baseline parameter, we're going to center and scale $\alpha$ for the standard deviation ($S_{\mathrm{RRi}}$) and mean RRi ($\bar{\mathrm{RRi}}$) observed from the RRi data. This previously computed parameters will serve to refer to the new parameter $\alpha_z$ as an standardized version of $\alpha$.
+
+$$
+\begin{align}
+\alpha = \alpha_z \cdot S_{\mathrm{RRi}} + \bar{\mathrm{RRi}} \\
+\alpha_z = \frac{\alpha - \bar{\mathrm{RRi}}}{S_{\mathrm{RRi}}}
+\end{align}
+$$
+
+### Exercise-induced drop $\beta$ parameter
+
+For the parameter $\beta$, that controls the exercise-induced drop part of the RRi curve, we'll also scale it, so it is in the same units (standard deviations) of the $\alpha$ parameter. This new parameter will be $\beta_z$.
+
+$$
+\begin{align}
+\beta = \beta_z \cdot S_{\mathrm{RRi}} \\ 
+\beta_z = \frac{\beta}{S_{\mathrm{RRi}}}
+\end{align}
+$$
+
+### Recovery proportion $c$ parameter
+
+The parameter controlling the recovery proprotion is a parameter bounded at zero at the lower limit, and physiologically bounded at 1.5 or 2, with no hard upper limit. In this case, we need a transformation that allows the new model parameter to be on the real line (i.e., $c_\mathbb{R} \in \mathbb{R}$). For this we limit the values of $c$ from 0 to 2, which contains physiologically extreme, but plausible, recovery proportion values.
+
+$$
+\begin{align}
+c = \frac{2e^{c_\mathbb{R}}}{1 + e^{c_\mathbb{R}}} \\ 
+c_\mathbb{R} = \log\left( \frac{c}{2 - c} \right)
+\end{align}
+$$
+
+### Rate parameters $\lambda$ and $\phi$
+
+The parameters controlling the steepness of the exercise-induced drop and recovery are given by $\lambda$ and $\phi$ parameters. These parameters are defined on the positive real line, $\mathbb{R}^+$. To convert this parameters so they can extend on the complete real numbers, we can apply a logarithmic transformation.
+
+$$
+\begin{align}
+\lambda = e^{\lambda_\mathbb{R}} \\ 
+\lambda_\mathbb{R} = \log(\lambda)
+\end{align}
+$$
+
+This also applies for the $\phi$ parameter.
+
+$$
+\begin{align}
+\phi = e^{\phi_\mathbb{R}} \\ 
+\phi_\mathbb{R} = \log(\phi)
+\end{align}
+$$
+
+This way we obtain real defined rate parameters $\lambda_\mathbb{R}$ and $\phi_\mathbb{R}$.
+
+### Timing parameters $\tau$ and $\delta$
+
+These parameters control the time-dependent kinetics of the RRi curve. This means, they control the "when" things happen. To make this parameters agnostic to the time scale, we thought to make a similar implementation to the $c$ parameter, by leveraging the inverse logistic function. However, for this to make sense, we need these parameters to be constraint in the 0 to 1 range (like a probability). To accomplish this, we first need to make that $\tau$ (and $\delta$ as well as we'll further see), are percentages of the current time range, $\Delta t$. This can be made by declaring this new parameter, let's say $\tau_\gamma$ and $\delta_\gamma$.
+
+For $\tau_\gamma$ this would be:
+
+$$
+\begin{align}
+\tau = t_{min} + \Delta t \cdot \tau_\gamma \\ 
+\tau_\gamma = \frac{\tau -t_{min}}{\Delta t}
+\end{align}
+$$
+
+And for $\delta_\gamma$ it would be:
+
+$$
+\begin{align}
+\delta = \Delta t \cdot \delta_\gamma \\ 
+\delta_\gamma = \frac{\delta}{\Delta t}
+\end{align}
+$$
+
+Then, we can work with this new parameter and apply the inverse logistic function to map this new parameter in the real line. This way, we obtain the new parameters $\tau_\mathbb{R}$ and $\delta_\mathbb{R}$.
+
+The transformation would to obtain $\tau_\mathbb{R}$ from $\tau_\gamma$ would be:
+
+$$
+\begin{align}
+\tau_\gamma = \frac{e^{\tau_\mathbb{R}}}{1 + e^{\tau_\mathbb{R}}} \\ 
+\tau_\mathbb{R} = \log \left( \frac{\tau_\gamma}{1 - \tau_\gamma} \right)
+\end{align}
+$$
+
+And the similar transformation would apply to obtain $\delta_\mathbb{R}$ from $\delta_\gamma$:
+
+$$
+\begin{align}
+\delta_\gamma = \frac{e^{\delta_\mathbb{R}}}{1 + e^{\delta_\mathbb{R}}} \\ 
+\delta_\mathbb{R} = \log \left( \frac{\delta_\gamma}{1 - \delta_\gamma} \right)
+\end{align}
+$$
+The full operation to transform $\tau$ from $\tau_\mathbb{R}$ and and back is the following:
+
+$$
+\begin{align}
+\tau = t_{min} + \Delta t \underbrace{ \left( \frac{e^{\tau_\mathbb{R}}}{1 + e^{\tau_\mathbb{R}}} \right) }_{\tau_\gamma} \\ 
+\tau_\mathbb{R} = \log\left( \frac{\tau - t_{min}}{t_{min} + \Delta t - \tau} \right)
+\end{align}
+$$
+
+For $\delta$ and $\delta_\mathbb{R}$ the operation is simplier, given that we don't have the term $t_{min}$:
+
+$$
+\begin{align}
+\delta = \Delta t \underbrace{ \left( \frac{e^{\delta_\mathbb{R}}}{1 + e^{\delta_\mathbb{R}}} \right) }_{\delta_\gamma} \\ 
+\delta_\mathbb{R} = \log \left( \frac{\delta}{\Delta t - \delta} \right)
+\end{align}
+$$
+
+This sequence of operations allows to, not only estimate parameters that are computationally efficient to explore and sample from, but also, are physiologically and practically meaningful. Parameters like $\tau_\gamma$ and $\delta_\gamma$ are time-agnostic, which allows for the interchangeable interpretation on exercise protocols with different time-frames and protocols.
+
+## Full reparameterized model
+
+Considering the aforementioned transformations on the original model parameters, let's recall the old model structure:
+
+$$
+\alpha - \frac{\beta}{1 + e^{-\lambda (t - \tau)}} + \frac{c \beta}{1 + e^{-\phi (t - \tau - \delta)}}
+$$
+
+By replacing the old model parameters with the new ones, we would ended up with a raw model that would look like something this:
+
+$$
+(\alpha_z \cdot S_{\mathrm{RRi}} + \bar{\mathrm{RRi}}) - \frac{\beta_z \cdot S_{\mathrm{RRi}}}{\left(1 + e^{ -e^{\lambda_\mathbb{R}}\left(t - \left( t_{min}+\Delta t \left( \frac{e^\tau_\mathbb{R}}{1 + e^{\tau_\mathbb{R}}} \right) \right)\right)}\right)} + \frac{ \left(\frac{2e^{c_\mathbb{R}}}{1 + e^{c_\mathbb{R}}} \right) \cdot \beta_z \cdot S_{\mathrm{RRi}}}{\left(1 + e^{ -e^{\phi_\mathbb{R}}\left(t - \left( t_{min}+\Delta t \left( \frac{e^\tau_\mathbb{R}}{1 + e^{\tau_\mathbb{R}}} \right) \right) - \left( \Delta t \left( \frac{e^{\delta_\mathbb{R}}}{1 + e^{\delta_\mathbb{R}}} \right) \right)\right)}\right)}
+$$
+
+This model can be further rewritten to rearrange the fraction in the numerator of the second logistic component like this:
+
+$$
+(\alpha_z \cdot S_{\mathrm{RRi}} + \bar{\mathrm{RRi}}) - \frac{\beta_z \cdot S_{\mathrm{RRi}}}{\left(1 + e^{ -e^{\lambda_\mathbb{R}}\left(t - \left( t_{min}+\Delta t \left( \frac{e^\tau_\mathbb{R}}{1 + e^{\tau_\mathbb{R}}} \right) \right)\right)}\right)} + \frac{2e^{c_\mathbb{R}} \cdot \beta_z \cdot S_{\mathrm{RRi}}}{(1 + e^{c_\mathbb{R}})\left(1 + e^{ -e^{\phi_\mathbb{R}}\left(t - \left( t_{min}+\Delta t \left( \frac{e^\tau_\mathbb{R}}{1 + e^{\tau_\mathbb{R}}} \right) \right) - \left( \Delta t \left( \frac{e^{\delta_\mathbb{R}}}{1 + e^{\delta_\mathbb{R}}} \right) \right)\right)}\right)}
+$$
+
+Additionally, the exponents in the neperian terms can still be simplified by common terms and sign propagation to arrive to an even elegant solution:
+
+$$
+(\alpha_z \cdot S_{\mathrm{RRi}} + \bar{\mathrm{RRi}}) - \frac{\beta_z \cdot S_{\mathrm{RRi}}}{\left(1 + e^{ -e^{\lambda_\mathbb{R}}\left(t - t_{min} - \Delta t \left(\frac{e^\tau_\mathbb{R}}{1 + e^{\tau_\mathbb{R}}} \right) \right)}\right)} + \frac{2e^{c_\mathbb{R}} \cdot \beta_z \cdot S_{\mathrm{RRi}}}{(1 + e^{c_\mathbb{R}})\left(1 + e^{ -e^{\phi_\mathbb{R}}\left(t - t_{min} - \Delta t \left( \frac{e^\tau_\mathbb{R}}{1 + e^{\tau_\mathbb{R}}} + \frac{e^{\delta_\mathbb{R}}}{1 + e^{\delta_\mathbb{R}}} \right) \right)}\right)}
+$$
+
+And in this way, we've finally arrived to the final form of the reparameterized RRi-vs-time model, which is generalizable to support a plethora of protocols and time schemes by only capturing shape-related aspects of the RRi curve, allowing its use varying experimental settings.
+
+Now we will try to visualize the new model and try to see if any difference from the original model arises, since this would mean that the model is capturing a process different from the originally thought.
+
+First, we will estimate the new parameters from the original magnitude-only model parameters to test the generalization of our original non-linear model.
+
+```{r}
+params <- within(params, {
+  ## Fixed parameters ,  Estimated 'a priori' from the data
+  rri_bar <- 650 # Observed RRi mean from crude data
+  S_rri <- 150 # Observed RRi standard deviation from the mean
+  t_min <- min(t) # Minimum time from the data
+  Delta_t <- diff(range(t)) # Difference of range of time
+  
+  ## Estimated parameters ,  
+  alpha_z <- (alpha - rri_bar) / S_rri
+  beta_z <- beta / S_rri
+  c_r <- log(c / (2 - c))
+  lambda_r <- log(lambda)
+  phi_r <- log(phi)
+  tau_r <- log((tau - t_min)/(Delta_t - tau + t_min))
+  delta_r <- log((delta)/(Delta_t - delta))
+})
+```
+
+Then, by having all the needed parameters to this model, we can be implement it in R as follow:
+
+```{r}
+sim_rri_2 <- with(params, {
+  ## Reparameterized parameters
+  alpha_term <- (alpha_z * S_rri + rri_bar)
+  beta_term <- (beta_z * S_rri)
+  c_term <- (2 * exp(c_r)) / (1 + exp(c_r))
+  lambda_term <- exp(lambda_r)
+  phi_term <- exp(phi_r)
+  tau_term <- t_min + Delta_t * (exp(tau_r) / (1 + exp(tau_r)))
+  delta_term <- Delta_t * (exp(delta_r) / (1 + exp(delta_r)))
+  
+  ## Symbolic representations of the old parameters by their previous position
+  ## which allows easier tractability for the generalizable model
+  alpha_term -
+    beta_term / (1 + exp(-lambda_term * (t - tau_term))) + 
+    (c_term * beta_term) / (1 + exp(-phi_term * (t - tau_term - delta_term)))
+})
+```
+
+This model implementation of the original RRi-vs-time model should provide the same estimations for a given time $t$ as the original model. First, we will visualize the overlaid estimations, from the new and original models.
+
+```{r}
+plot(t, sim_rri, type = "l", col = "gray30", lwd = 5, 
+     xlab = "Time (min)", ylab = "RRi (ms)", lend = "square",
+     main = "Overlaid New model (white dashed)\nover Original model (gray continuous)",
+     axes = FALSE); axis(1); axis(2)
+lines(t, sim_rri_2, col = "white", lwd = 2, lty = 2, lend = "square")
+```
+
+Additionally, let's check the difference between pairwise predicted values to get a measure of error from the new model agains the original model. This is similar to what residuals are meant to be. All data points should be centered around zero.
+
+```{r}
+plot(density(sim_rri - sim_rri_2),
+     main = "New Model (Nm) Residuals Against Original Model (Om)\nOm(t) - Nm(t)",
+     xlab = "Residual value",
+     axes = FALSE); axis(1); axis(2)
+rug(sim_rri - sim_rri_2)
+```
+
+As we can see, most values are centered around zero, suggesting that the differences between models is neglible. However, we see some values different from zero, but that are on the 10^-13^ magnitude. For reference, this is equivalent to an error in the predicted RRi by less than 0.0000000000001 ms between models, suggesting mainly rounding errors derived from handling irrational values from natural logarithms and euler exponents.
+
+## Simulation studies
+
+Now that we have a clear notion that the models, both the reparameterized and the original, predict the same RRi from the same input data, we are ready to actually test how well is the estimation of the transformed parameters.
+
+First, we will start for a broad range of values for each parameter, considering the extremes of whats physiologically plausible based on the observed experimental data.
+
+```{r}
+library(data.table)
+library(ggplot2)
+
+n <- 50 # Subjects
+t <- seq(0, 15, 0.1) # Time vector
+
+## Draw true parameters from Uniform distribution
+set.seed(1234)
+params <- data.table(
+  id = seq_len(n),
+  alpha = runif(n, 600, 1000),
+  beta = runif(n, 200, 500),
+  c = runif(n, 0.6, 1),
+  lambda = runif(n, 2, 6),
+  phi = runif(n, 2, 6),
+  tau = runif(n, 4, 6),
+  delta = runif(n, 4, 6),
+  sigma = runif(n, 20, 100)
+)
+
+## Add the time vector to the True parameters
+params <- params[, list(t), id][params, on = "id"]
+
+## Estimate the True RRi signal
+params[, rri_true := 
+  alpha -
+    beta / (1 + exp(-lambda * (t - tau))) +
+    (c * beta) / (1 + exp(-phi * (t - tau - delta)))
+, keyby = id]
+
+## Estimate the observed RRi signal
+
+params[, rri_observed := rri_true + rnorm(n = length(rri_true), 0, sigma), keyby = id]
+
+## Computed parameters for simulation
+params[, s_rri := sd(rri_observed), keyby = id]
+params[, bar_rri := mean(rri_observed), keyby = id]
+params[, t_min := min(t), keyby = id]
+params[, t_delta := diff(x = range(t)), keyby = id]
+
+ggplot(params, aes(x = t, colour = ordered(id))) +
+  geom_line(aes(y = rri_observed), show.legend = FALSE) +
+  geom_smooth(aes(y = rri_observed, colour = NULL), show.legend = FALSE, colour = "white") +
+  scale_y_continuous(limits = c(0, NA), expand = c(0,0)) +
+  scale_x_continuous(expand = c(0,0)) +
+  labs(title = "Observed RRi Curve", subtitle = "Based on Simulated Parameters",
+       y = "RRi (ms)", x = "Time (min)") +
+  theme_classic() 
+```
+
+
+We will opt to perform a bayesian estimation of the parameters 
+
+
+
+## Estimation of physiologically meaningful indices
+## Discussion
+## Conclussion
