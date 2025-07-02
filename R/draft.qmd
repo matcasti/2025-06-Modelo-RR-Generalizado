@@ -237,8 +237,8 @@ First, we will estimate the new parameters from the original magnitude-only mode
 
 ```{r}
 params <- within(params, {
-  ## Fixed parameters ,  Estimated 'a priori' from the data
-  rri_bar <- 650 # Observed RRi mean from crude data
+  ## Fixed parameters ,  Estimated from the data
+  rri_bar <- 750 # Observed RRi mean from crude data
   S_rri <- 150 # Observed RRi standard deviation from the mean
   t_min <- min(t) # Minimum time from the data
   Delta_t <- diff(range(t)) # Difference of range of time

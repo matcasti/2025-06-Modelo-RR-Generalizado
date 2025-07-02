@@ -192,19 +192,27 @@ Considering the aforementioned transformations on the original model parameters,
 
 $$
 \begin{aligned}
-\mathrm{RRi}(t) = &(\alpha_z \cdot S_{\mathrm{RRi}} + \bar{\mathrm{RRi}}) - \frac{\beta_z \cdot S_{\mathrm{RRi}}}{\left(1 + e^{ -e^{\lambda_\mathbb{R}}\left(t - \left( t_{min}+\Delta t \left( \frac{e^\tau_\mathbb{R}}{1 + e^{\tau_\mathbb{R}}} \right) \right)\right)}\right)} + \frac{ \left(\frac{2e^{c_\mathbb{R}}}{1 + e^{c_\mathbb{R}}} \right) \cdot \beta_z \cdot S_{\mathrm{RRi}}}{\left(1 + e^{ -e^{\phi_\mathbb{R}}\left(t - \left( t_{min}+\Delta t \left( \frac{e^\tau_\mathbb{R}}{1 + e^{\tau_\mathbb{R}}} \right) \right) - \left( \Delta t \left( \frac{e^{\delta_\mathbb{R}}}{1 + e^{\delta_\mathbb{R}}} \right) \right)\right)}\right)}
+\mathrm{RRi}(t) = (\alpha_z \cdot S_{\mathrm{RRi}} + \bar{\mathrm{RRi}}) - \frac{\beta_z \cdot S_{\mathrm{RRi}}}{\left(1 + e^{ -e^{\lambda_\mathbb{R}}\left(t - \left( t_{min}+\Delta t \left( \frac{e^\tau_\mathbb{R}}{1 + e^{\tau_\mathbb{R}}} \right) \right)\right)}\right)} + \frac{ \left(\frac{2e^{c_\mathbb{R}}}{1 + e^{c_\mathbb{R}}} \right) \cdot \beta_z \cdot S_{\mathrm{RRi}}}{\left(1 + e^{ -e^{\phi_\mathbb{R}}\left(t - \left( t_{min}+\Delta t \left( \frac{e^\tau_\mathbb{R}}{1 + e^{\tau_\mathbb{R}}} \right) \right) - \left( \Delta t \left( \frac{e^{\delta_\mathbb{R}}}{1 + e^{\delta_\mathbb{R}}} \right) \right)\right)}\right)}
 \end{aligned}
 $${#eq-model-final-raw}
 
-Additionally, this model can be further rewritten to rearrange the fraction in the numerator of the second logistic component, corresponding to the $c$ parameter, and simplify the exponents in the denominator of the second logistic component by common terms and consider sign propagation to arrive to an even elegant reduced solution, depicted in @eq-model-final.
+However, this model can be further rewritten to rearrange the fraction in the numerator of the second logistic component, corresponding to the $c$ parameter, and simplify the exponents in the denominator of the second logistic component by common terms and consider sign propagation to arrive to an even elegant reduced solution, depicted in @eq-model-semifinal.
 
 $$
 \begin{aligned}
-\mathrm{RRi}(t) = &(\alpha_z \cdot S_{\mathrm{RRi}} + \bar{\mathrm{RRi}}) - \frac{\beta_z \cdot S_{\mathrm{RRi}}}{\left(1 + e^{ -e^{\lambda_\mathbb{R}}\left(t - t_{min} - \Delta t \left(\frac{e^\tau_\mathbb{R}}{1 + e^{\tau_\mathbb{R}}} \right) \right)}\right)} + \frac{2e^{c_\mathbb{R}} \cdot \beta_z \cdot S_{\mathrm{RRi}}}{(1 + e^{c_\mathbb{R}})\left(1 + e^{ -e^{\phi_\mathbb{R}}\left(t - t_{min} - \Delta t \left( \frac{e^\tau_\mathbb{R}}{1 + e^{\tau_\mathbb{R}}} + \frac{e^{\delta_\mathbb{R}}}{1 + e^{\delta_\mathbb{R}}} \right) \right)}\right)}
+\mathrm{RRi}(t) = (\alpha_z \cdot S_{\mathrm{RRi}} + \bar{\mathrm{RRi}}) - \frac{\beta_z \cdot S_{\mathrm{RRi}}}{\left(1 + e^{ -e^{\lambda_\mathbb{R}}\left(t - t_{min} - \Delta t \left(\frac{e^\tau_\mathbb{R}}{1 + e^{\tau_\mathbb{R}}} \right) \right)}\right)} + \frac{2e^{c_\mathbb{R}} \cdot \beta_z \cdot S_{\mathrm{RRi}}}{(1 + e^{c_\mathbb{R}})\left(1 + e^{ -e^{\phi_\mathbb{R}}\left(t - t_{min} - \Delta t \left( \frac{e^\tau_\mathbb{R}}{1 + e^{\tau_\mathbb{R}}} + \frac{e^{\delta_\mathbb{R}}}{1 + e^{\delta_\mathbb{R}}} \right) \right)}\right)}
+\end{aligned}
+$${#eq-model-semifinal}
+
+Furthermore, if we consider an additional step, prior to parameter estimation, we can standardized the RRi signal (i.e., centered on zero and scaled by the observed standard deviation), leaving $S_{\mathrm{RRi}} = 1$ and $\bar{\mathrm{RRi}} = 0$. Moreover, rescaling the time vector in the zero-to-one range, also leave us with $\Delta t = 1$ and $t_{min} = 0$, which further simplifies @eq-model-semifinal into a more readable model, depicted in @eq-model-final.
+
+$$
+\begin{aligned}
+\mathrm{RRi}(t) = \alpha_z - \frac{\beta_z}{\left(1 + e^{ -e^{\lambda_\mathbb{R}}\left(t - \frac{e^\tau_\mathbb{R}}{1 + e^{\tau_\mathbb{R}}} \right)}\right)} + \frac{2e^{c_\mathbb{R}} \cdot \beta_z}{(1 + e^{c_\mathbb{R}})\left(1 + e^{ -e^{\phi_\mathbb{R}}\left(t -  \frac{e^\tau_\mathbb{R}}{1 + e^{\tau_\mathbb{R}}} - \frac{e^{\delta_\mathbb{R}}}{1 + e^{\delta_\mathbb{R}}} \right)}\right)}
 \end{aligned}
 $${#eq-model-final}
 
-And in this way, we've finally arrived to the final form of the reparameterized RRi-vs-time model, which is generalizable to support a plethora of protocols and time schemes by only capturing shape-related aspects of the RRi curve, allowing its use varying experimental settings.
+Thus, deriving the final form of the reparameterized RRi-vs-time model, which is generalizable to support a plethora of protocols and time schemes by only capturing shape-related aspects of the RRi curve, allowing its use in varying experimental settings.
 
 ## Physiologically meaningful indices
 
