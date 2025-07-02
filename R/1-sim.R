@@ -100,7 +100,7 @@ trueParams <- list(
 
 # 1.2. Generate Synthetic RRi -----------------------------------------------
 
-n <- 5 ## Number of Monte Carlo simulations
+n <- 500 ## Number of Monte Carlo simulations
 ## Note: the actual number of models fitted will be n x 6, given that for each
 ## n there are two models to test (old and new), and three priors to test.
 
@@ -389,7 +389,5 @@ benchMark[, prior := factor(prior, levels = c("narrow", "moderate", "wide"))]
 benchMark[, model := factor(model)]
 
 saveRDS(benchMark, file = "output/benchMark.RDS")
-
-benchMark[, plot(elapsed ~ model)]
 
 # End of script -----------------------------------------------------------
