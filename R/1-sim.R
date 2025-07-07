@@ -9,7 +9,6 @@
 ##   3. Narrow, moderate and wide Prior-specification from true parameters.
 ##   4. Fitting of prior-only Bayesian model to avoid future redundant model recompiling.
 ##   5. Model fitting for each simulated RRi curve using precompiled model.
-##   6. Extraction of model-fitting elapsed times for future comparison.
 
 # System info -------------------------------------------------------------
 
@@ -49,8 +48,8 @@ library(brms)
 source("R/_functions.R")
 
 ## Decide if start without any
-remove_models <- TRUE
-remove_precompiled <- TRUE
+remove_models <- FALSE
+remove_precompiled <- FALSE
 
 if (remove_models) {
   status <- file.remove(
@@ -100,7 +99,7 @@ trueParams <- list(
 
 # 1.2. Generate Synthetic RRi -----------------------------------------------
 
-n <- 500 ## Number of Monte Carlo simulations
+n <- 10 ## Number of Monte Carlo simulations
 ## Note: the actual number of models fitted will be n x 6, given that for each
 ## n there are two models to test (old and new), and three priors to test.
 
@@ -204,7 +203,7 @@ if (FALSE) {
 # knowledge
 
 ## Multiplier for model standard deviation as model priors
-priorMult <- list(narrow = 1/3, moderate = 1, wide = 3)
+priorMult <- list(narrow = 1/2, moderate = 1, wide = 2)
 
 ## For each multiplier, define model parameters' priors:
 
@@ -315,79 +314,83 @@ priorTypes
 ## And for each individual
 subjectId <- unique(simData$id)
 
+gc(full = TRUE)
+
+message("Now starting simulation on model: NEW")
+
 ## New model run
 model_newPosterior <- lapply(priorTypes, function(i) {
+  gc(full = TRUE)
+  message("Now starting with prior: ", i)
   lapply(subjectId, function(j) {
-    system.time({
-      brm(
-        formula = newFormula,
-        data = simData[id == j],
-        family = gaussian(),
-        prior = newPrior[[i]],
-        fit = model_newPrior[[i]],
-        iter = 10000, warmup = 5000,
-        chains = 4, cores = 4, seed = 1234,
-        file = paste0("models/new/sim/",formatC(j, digits = 3, width = 3, flag = "0"),"-",i,"Prior.RDS")
+    message("Now starting with subject: ", j)
+    mod_file <- paste0("models/new/sim/",formatC(j, digits = 4, width = 4, flag = "0"),"-",i,"Prior.RDS")
+    if (!file.exists(mod_file)) {
+      tryCatch(
+        expr = {
+          brm(
+            formula = newFormula,
+            data = simData[id == j],
+            family = gaussian(),
+            prior = newPrior[[i]],
+            fit = model_newPrior[[i]],
+            iter = 10000, warmup = 5000,
+            chains = 4, cores = 4, seed = 1234,
+            file = mod_file
+          ); "Success"
+        },
+        error = function(e) {
+          as.character(e)
+        },
+        warning = function(w) {
+          as.character(w)
+        }
       )
-    }, gcFirst = TRUE)
+    } else {
+      "Ommited"
+    }
   })
 })
+
+gc(full = TRUE)
+
+message("Now starting simulation on model: OLD")
 
 ## Old model run
 model_oldPosterior <- lapply(priorTypes, function(i) {
+  gc(full = TRUE)
+  message("Now starting with prior: ", i)
   lapply(subjectId, function(j) {
-    system.time({
-      brm(
-        formula = oldFormula,
-        data = simData[id == j],
-        family = gaussian(),
-        prior = oldPrior[[i]],
-        fit = model_oldPrior[[i]],
-        iter = 10000, warmup = 5000,
-        chains = 4, cores = 4, seed = 1234,
-        file = paste0("models/old/sim/",formatC(j, digits = 3, width = 3, flag = "0"),"-",i,"Prior.RDS")
+    message("Now starting with subject: ", j)
+    mod_file <- paste0("models/old/sim/",formatC(j, digits = 4, width = 4, flag = "0"),"-",i,"Prior.RDS")
+    if (!file.exists(mod_file)) {
+      tryCatch(
+        expr = {
+          brm(
+            formula = oldFormula,
+            data = simData[id == j],
+            family = gaussian(),
+            prior = oldPrior[[i]],
+            fit = model_oldPrior[[i]],
+            iter = 10000, warmup = 5000,
+            chains = 4, cores = 4, seed = 1234,
+            file = mod_file
+          ); "Success"
+        },
+        error = function(e) {
+          as.character(e)
+        },
+        warning = function(w) {
+          as.character(w)
+        }
       )
-    }, gcFirst = TRUE)
+    } else {
+      "Ommited"
+    }
   })
 })
 
+message("All models fitted!")
 
-# 6.1. Extract elapsed time until convergence ----------------------------------
-
-
-## Pre-allocate data objects for model's benchmarks
-benchMark <- list(old = NA, new = NA)
-
-## Extract the elapsed time for the reparameterized model
-benchMark$new <- model_newPosterior |>
-  lapply(function(x) {
-    time <- lapply(x, function(x) {
-      as.list(x) |>
-        as.data.table()
-    })
-    rbindlist(time, idcol = "id")
-  }) |>
-  rbindlist(idcol = "prior")
-
-## Extract the elapsed time for the original model
-benchMark$old <- model_oldPosterior |>
-  lapply(function(x) {
-    time <- lapply(x, function(x) {
-      as.list(x) |>
-        as.data.table()
-    })
-    rbindlist(time, idcol = "id")
-  }) |>
-  rbindlist(idcol = "prior")
-
-## Join the estimates into a single data frame
-benchMark <- benchMark |>
-  rbindlist(idcol = "model")
-
-## Format prior and model variables as factors for future processing
-benchMark[, prior := factor(prior, levels = c("narrow", "moderate", "wide"))]
-benchMark[, model := factor(model)]
-
-saveRDS(benchMark, file = "output/benchMark.RDS")
 
 # End of script -----------------------------------------------------------
