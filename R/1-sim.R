@@ -13,16 +13,16 @@
 # System info -------------------------------------------------------------
 
 # sessionInfo()
-#> R version 4.5.0 (2025-04-11)
-#> Platform: aarch64-apple-darwin20
-#> Running under: macOS Sequoia 15.4.1
+#> R version 4.4.2 (2024-10-31 ucrt)
+#> Platform: x86_64-w64-mingw32/x64
+#> Running under: Windows 11 x64 (build 26100)
 #>
 #> Matrix products: default
-#> BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib
-#> LAPACK: /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
+#>
 #>
 #> locale:
-#> [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+#> [1] LC_COLLATE=Spanish_Chile.utf8  LC_CTYPE=Spanish_Chile.utf8    LC_MONETARY=Spanish_Chile.utf8
+#> [4] LC_NUMERIC=C                   LC_TIME=Spanish_Chile.utf8
 #>
 #> time zone: America/Punta_Arenas
 #> tzcode source: internal
@@ -30,13 +30,20 @@
 #> attached base packages:
 #> [1] stats     graphics  grDevices utils     datasets  methods   base
 #>
-#> other attached packages:
-#> [1] data.table_1.17.2 usethis_3.1.0
-#>
 #> loaded via a namespace (and not attached):
-#>  [1] gert_2.1.5        magrittr_2.0.3    glue_1.8.0        tibble_3.2.1      pkgconfig_2.0.3   lifecycle_1.0.4   cli_3.6.5
-#>  [8] askpass_1.2.1     openssl_2.3.2     vctrs_0.6.5       withr_3.0.2       compiler_4.5.0    rprojroot_2.0.4   sys_3.4.3
-#> [15] purrr_1.0.4       rstudioapi_0.17.1 tools_4.5.0       credentials_2.0.2 pillar_1.10.2     rlang_1.1.6       fs_1.6.6
+#>  [1] bridgesampling_1.1-2 tensorA_0.36.2.1     future_1.49.0        generics_0.1.4       stringi_1.8.7
+#>  [6] lattice_0.22-7       listenv_0.9.1        digest_0.6.37        magrittr_2.0.3       grid_4.4.2
+#> [11] estimability_1.5.1   RColorBrewer_1.1-3   mvtnorm_1.3-3        plyr_1.8.9           Matrix_1.7-3
+#> [16] pkgbuild_1.4.8       backports_1.5.0      gridExtra_2.3        Brobdingnag_1.2-9    purrr_1.0.4
+#> [21] brms_2.22.0          QuickJSR_1.7.0       scales_1.4.0         codetools_0.2-20     abind_1.4-8
+#> [26] cli_3.6.5            rlang_1.1.6          parallelly_1.44.0    future.apply_1.11.3  StanHeaders_2.32.10
+#> [31] tools_4.4.2          rstan_2.32.7         inline_0.3.21        parallel_4.4.2       reshape2_1.4.4
+#> [36] rstantools_2.4.0     checkmate_2.3.2      coda_0.19-4.1        dplyr_1.1.4          ggplot2_3.5.2
+#> [41] globals_0.18.0       vctrs_0.6.5          posterior_1.6.1      R6_2.6.1             matrixStats_1.5.0
+#> [46] stats4_4.4.2         lifecycle_1.0.4      emmeans_1.11.1       stringr_1.5.1        pkgconfig_2.0.3
+#> [51] RcppParallel_5.1.10  pillar_1.10.2        gtable_0.3.6         loo_2.8.0            glue_1.8.0
+#> [56] Rcpp_1.0.14          tibble_3.2.1         tidyselect_1.2.1     rstudioapi_0.17.1    farver_2.1.2
+#> [61] xtable_1.8-4         bayesplot_1.12.0     nlme_3.1-168         compiler_4.4.2       distributional_0.5.0
 
 # 0. Prepare workspace -------------------------------------------------------
 
@@ -99,7 +106,7 @@ trueParams <- list(
 
 # 1.2. Generate Synthetic RRi -----------------------------------------------
 
-n <- 10 ## Number of Monte Carlo simulations
+n <- 1000 ## Number of Monte Carlo simulations
 ## Note: the actual number of models fitted will be n x 6, given that for each
 ## n there are two models to test (old and new), and three priors to test.
 
@@ -272,7 +279,7 @@ priorTypes <- c(narrow = "narrow", moderate = "moderate", wide = "wide")
 model_newPrior <- lapply(priorTypes, function(x) {
   brm(
     formula = newFormula,
-    data = simData,
+    data = simData[id == 1],
     family = gaussian(),
     prior = newPrior[[x]],
     iter = 10000, warmup = 5000,
@@ -286,7 +293,7 @@ model_newPrior <- lapply(priorTypes, function(x) {
 model_oldPrior <- lapply(priorTypes, function(x) {
   brm(
     formula = oldFormula,
-    data = simData,
+    data = simData[id == 1],
     family = gaussian(),
     prior = oldPrior[[x]],
     iter = 10000, warmup = 5000,
@@ -352,6 +359,8 @@ model_newPosterior <- lapply(priorTypes, function(i) {
   })
 })
 
+unlist(model_newPosterior) |> table()
+
 gc(full = TRUE)
 
 message("Now starting simulation on model: OLD")
@@ -389,6 +398,8 @@ model_oldPosterior <- lapply(priorTypes, function(i) {
     }
   })
 })
+
+unlist(model_oldPosterior) |> table()
 
 message("All models fitted!")
 
